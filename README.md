@@ -1,7 +1,7 @@
 # English Word Search Tool (With Regex)
 ![](screenshot.jpg)
-This is a tool using Regex to search the matched English words.
+This utility leverages Regular Expressions (Regex) to facilitate precise English word retrieval.  
 
-You can use it as a handy tool when preparing GRE or other tests, by listing all the same prefix and 后缀 to memorize.
+It could serves as an efficient study aid for GRE and other standardized tests, enabling users to aggregate words with identical prefixes or suffixes for enhanced memorization.
 
-Note that the dictionary I used here is from [https://github.com/dwyl/english-words](https://github.com/dwyl/english-words).
+The underlying dataset is sourced from the  repository [https://github.com/dwyl/english-words](https://github.com/dwyl/english-words).
