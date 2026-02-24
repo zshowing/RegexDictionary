@@ -358,6 +358,40 @@ function describeToken(atom, quantifier, type) {
   return quantifierText ? `${base}，${quantifierText}` : base;
 }
 
+function canMergeLiteralTokens(previousToken, nextToken) {
+  return (
+    previousToken.type === "literal" &&
+    nextToken.type === "literal" &&
+    previousToken.quantifier === "" &&
+    nextToken.quantifier === "" &&
+    previousToken.end === nextToken.start
+  );
+}
+
+function mergeAdjacentLiteralTokens(tokens) {
+  if (tokens.length < 2) {
+    return tokens;
+  }
+
+  const merged = [];
+
+  for (const token of tokens) {
+    const last = merged[merged.length - 1];
+
+    if (last && canMergeLiteralTokens(last, token)) {
+      last.atom += token.atom;
+      last.raw = `${last.atom}${last.quantifier}`;
+      last.end = token.end;
+      last.description = describeToken(last.atom, last.quantifier, last.type);
+      continue;
+    }
+
+    merged.push({ ...token });
+  }
+
+  return merged.map((token, index) => ({ ...token, id: index }));
+}
+
 function tokenizePattern(source) {
   const tokens = [];
   let i = 0;
@@ -427,7 +461,7 @@ function tokenizePattern(source) {
     id += 1;
   }
 
-  return tokens;
+  return mergeAdjacentLiteralTokens(tokens);
 }
 
 function buildSegmentedPattern(tokens) {
