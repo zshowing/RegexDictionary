@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>英文单词搜索（正则版）</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="aurora aurora-a"></div>
+    <div class="aurora aurora-b"></div>
+    <main class="app-shell">
+      <header class="hero">
+        <p class="hero-tag"></p>
+        <h1>英文单词搜索（正则版）</h1>
+        <p class="hero-sub">
+          你可以点按钮拼表达式或直接输入来匹配单词，可以在右侧看到每个符号在结果里匹配了哪一段。
+        </p>
+        <div id="loadStatus" class="status-pill loading">正在加载词典...</div>
+      </header>
+
+      <section class="workspace-grid">
+        <section class="panel builder-panel">
+          <div class="input-toolbar">
+            <h2>请输入正则表达式：</h2>
+            <button type="button" id="clearPatternBtn" class="clear-btn">清空</button>
+          </div>
+          <textarea
+            id="patternInput"
+            rows="2"
+            spellcheck="false"
+            placeholder="例如：^\b\w*?([a-z])\d*[^aeiou]{2}[aeiou]+[^aeiou]{2,4}(?:ths|THS).?$\b"
+          >^\b\w*?([a-z])\d*[^aeiou]{2}[aeiou]+[^aeiou]{2,4}(?:ths|THS).?$\b</textarea>
+
+          <div class="regex-track-wrap">
+            <span class="regex-track-label">表达式分段预览（悬停任一处可联动高亮）</span>
+            <div id="regexTrack" class="regex-track empty">
+              输入表达式后，这里会把它拆成可联动的彩色片段。
+            </div>
+          </div>
+
+          <p id="regexError" class="regex-error" hidden></p>
+
+          <aside id="hintCard" class="hint-card">
+            点击下面的按钮会把符号插入光标位置。
+          </aside>
+
+          <div class="button-groups">
+            <div class="btn-group">
+              <h3>常见字符类</h3>
+              <div class="btn-grid">
+                <button class="token-btn" data-snippet="." data-cursor="0" data-hint="匹配任意一个字符（不含换行）">.</button>
+                <button class="token-btn" data-snippet="\\d" data-cursor="0" data-hint="匹配数字 0-9">\\d</button>
+                <button class="token-btn" data-snippet="\\w" data-cursor="0" data-hint="匹配字母/数字/下划线">\\w</button>
+                <button class="token-btn" data-snippet="[a-z]" data-cursor="-1" data-hint="匹配 a 到 z 的任意字符">[a-z]</button>
+                <button class="token-btn" data-snippet="[^aeiou]" data-cursor="-1" data-hint="匹配非元音字符">[^aeiou]</button>
+                <button class="token-btn" data-snippet="\\b" data-cursor="0" data-hint="单词边界（不消耗字符）">\\b</button>
+              </div>
+            </div>
+
+            <div class="btn-group">
+              <h3>重复次数</h3>
+              <div class="btn-grid">
+                <button class="token-btn" data-snippet="*" data-cursor="0" data-hint="前一项出现 0 次或更多">*</button>
+                <button class="token-btn" data-snippet="+" data-cursor="0" data-hint="前一项出现 1 次或更多">+</button>
+                <button class="token-btn" data-snippet="?" data-cursor="0" data-hint="前一项出现 0 或 1 次">?</button>
+                <button class="token-btn" data-snippet="{2}" data-cursor="0" data-hint="前一项恰好重复 2 次">{2}</button>
+                <button class="token-btn" data-snippet="{2,4}" data-cursor="0" data-hint="前一项重复 2 到 4 次">{2,4}</button>
+                <button class="token-btn" data-snippet="*?" data-cursor="0" data-hint="惰性匹配：尽可能少地匹配">*?</button>
+              </div>
+            </div>
+
+            <div class="btn-group">
+              <h3>定位与逻辑</h3>
+              <div class="btn-grid">
+                <button class="token-btn" data-snippet="^" data-cursor="0" data-hint="匹配开头位置">^</button>
+                <button class="token-btn" data-snippet="$" data-cursor="0" data-hint="匹配结尾位置">$</button>
+                <button class="token-btn" data-snippet="|" data-cursor="0" data-hint="或：匹配左边或右边">|</button>
+                <button class="token-btn" data-snippet="()" data-cursor="-1" data-hint="分组：把一段看成一个整体">()</button>
+                <button class="token-btn" data-snippet="(?:)" data-cursor="-1" data-hint="非捕获分组：只分组，不保存内容">(?:)</button>
+                <button class="token-btn" data-snippet="[aeiou]" data-cursor="-1" data-hint="从字符集合中选一个">[aeiou]</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="quick-examples">
+            <h3>一键示例</h3>
+            <div class="example-row">
+              <button class="example-btn" data-pattern="^\b\w*?([a-z])\d*[^aeiou]{2}[aeiou]+[^aeiou]{2,4}(?:ths|THS).?$\b">全按钮示例（默认）</button>
+              <button class="example-btn" data-pattern="^un.*ed$">^un.*ed$</button>
+              <button class="example-btn" data-pattern="b[aeiou]{2}t">b[aeiou]{2}t</button>
+              <button class="example-btn" data-pattern="colou?r">colou?r</button>
+            </div>
+          </div>
+
+          <div class="manual-load">
+            <label for="dictFile">或者，你也可以手动上传你自己的词典文件（txt格式）：</label>
+            <input type="file" id="dictFile" accept=".txt,text/plain" />
+          </div>
+        </section>
+
+        <section class="panel result-panel">
+          <h2>表达式每部分解释：</h2>
+          <div id="tokenLegend" class="token-legend empty">
+            输入表达式后，这里会解释每个符号的含义并用颜色对应到结果中的匹配片段。
+          </div>
+
+          <div class="stats-row">
+            <div class="stat-card">
+              <span class="stat-label">总匹配数</span>
+              <strong id="matchCount">0</strong>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">当前展示</span>
+              <strong id="shownCount">0</strong>
+            </div>
+          </div>
+
+          <h2 class="result-heading">匹配结果：</h2>
+          <ul id="resultList" class="result-list"></ul>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
